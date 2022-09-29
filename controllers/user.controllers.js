@@ -25,9 +25,11 @@ userController.addMissions=async(req,res,next)=>{
         let found = await User.findOne({name:targetName})
         if(!found) throw new AppError(404,"Bad Request",`Can't find the name ${targetName}`)
         if (found.missions.includes(id)) throw new AppError(401,"Bad Request","The user has accepted this quest")
-        const idFound = await Mission.findById(id)
+        let idFound = await Mission.findById(id)
         if(!idFound) throw new AppError(404,"Bad Request","quest not found")
+        idFound.Participants.push(found._id.toString())
         found.missions.push(idFound)
+        idFound = await idFound.save()
         found = await found.save()
         sendResponse(res,200,true,found,null,"Add Missions success")
     }catch(err){
