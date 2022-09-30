@@ -33,7 +33,7 @@ const {createUser, getAllUsers,addMissions,getUsersById,deleteMissions} = requir
  * @description update missions to a user
  * @access public
  */
- router.put("/:targetName",addMissions)
+ router.put("/:idUser",addMissions)
 
  //Update
 /**
@@ -41,7 +41,7 @@ const {createUser, getAllUsers,addMissions,getUsersById,deleteMissions} = requir
  * @description update missions to a user
  * @access public
  */
- router.delete("/:targetName",deleteMissions)
+ router.delete("/:id",deleteMissions)
 
 
  //export

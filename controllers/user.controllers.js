@@ -19,18 +19,23 @@ userController.createUser=async(req,res,next)=>{
 
 //updateuser
 userController.addMissions=async(req,res,next)=>{
-   const {targetName}= req.params
+   const {idUser}= req.params
    const {id} = req.body
     try{
-        let found = await User.findOne({name:targetName})
-        if(!found) throw new AppError(404,"Bad Request",`Can't find the name ${targetName}`)
-        if (found.missions.includes(id)) throw new AppError(401,"Bad Request","The user has accepted this quest")
+        let found = await User.findById(idUser)
+        if(!found) throw new AppError(404,"Bad Request",`Can't find the name ${idUser}`)
         let idFound = await Mission.findById(id)
         if(!idFound) throw new AppError(404,"Bad Request","quest not found")
-        idFound.Participants.push(found._id.toString())
+        if (found.missions.includes(id)){
+            found.missions = found.missions.filter(e => e.toString() !== id)
+            idFound.Participants = found.missions.filter(e => e.toString() !== idUser)
+            idFound = await idFound.save()
+            found = await found.save()
+        }else{ 
+        idFound.Participants.push(idUser)
         found.missions.push(idFound)
         idFound = await idFound.save()
-        found = await found.save()
+        found = await found.save()}
         sendResponse(res,200,true,found,null,"Add Missions success")
     }catch(err){
         next(err)
@@ -39,22 +44,16 @@ userController.addMissions=async(req,res,next)=>{
 
 //updateuser
 userController.deleteMissions=async(req,res,next)=>{
-    const {targetName}= req.params
-    const {id} = req.body
-     try{
-         let found = await User.findOne({name:targetName})
-         if(!found) throw new AppError(404,"Bad Request",`Can't find the name ${targetName}`)
-         if (!found.missions.includes(id)) throw new AppError(401,"Bad Request","the user has not received this quest")
-         const idFound = await Mission.findById(id)
-         if(!idFound) throw new AppError(404,"Bad Request","quest not found")
-         let newMission = Object.values(found.missions)
-         newMission = newMission.filter(e => e.toString() !== id)
-         found.missions = newMission
-         found = await found.save()
-         sendResponse(res,200,true,found,null,"Add Missions success")
-     }catch(err){
-         next(err)
-     }
+    let {id} = req.params
+    const deleted = {isDeleted:true}
+    const options = {new:true}
+    try{
+        const updated= await User.findByIdAndUpdate(id,deleted,options)
+        if(!updated) throw new AppError(404,"Bad Request","car not found")
+        sendResponse(res,200,true,updated,null,"Delete mission success")
+    }catch(err){
+        next(err)
+    }
  }
 
 //Get all user
