@@ -17,26 +17,26 @@ userController.createUser=async(req,res,next)=>{
     }
 }
 
-//updateuser
+//updateuser    
 userController.addMissions=async(req,res,next)=>{
    const {idUser}= req.params
    const {id} = req.body
     try{
-        let found = await User.findById(idUser)
-        if(!found) throw new AppError(404,"Bad Request",`Can't find the name ${idUser}`)
-        let idFound = await Mission.findById(id)
-        if(!idFound) throw new AppError(404,"Bad Request","quest not found")
-        if (found.missions.includes(id)){
-            found.missions = found.missions.filter(e => e.toString() !== id)
-            idFound.Participants = found.missions.filter(e => e.toString() !== idUser)
-            idFound = await idFound.save()
-            found = await found.save()
+        let foundUser = await User.findById(idUser)
+        if(!foundUser) throw new AppError(404,"Bad Request",`Can't find the name ${idUser}`)
+        let foundMission = await Mission.findById(id)
+        if(!foundMission) throw new AppError(404,"Bad Request","quest not found")
+        if (foundUser.missions.includes(id)){
+            foundUser.missions = foundUser.missions.filter(e => e.toString() !== id)
+            foundMission.Participants = foundMission.Participants.filter(e => e.toString() !== idUser)
+            foundMission = await foundMission.save()
+            foundUser = await foundUser.save()
         }else{ 
-        idFound.Participants.push(idUser)
-        found.missions.push(idFound)
-        idFound = await idFound.save()
-        found = await found.save()}
-        sendResponse(res,200,true,found,null,"Add Missions success")
+        foundMission.Participants.push(idUser)
+        foundUser.missions.push(id)
+        foundMission = await foundMission.save()
+        foundUser = await foundUser.save()}
+        sendResponse(res,200,true,foundUser,null,"Add Missions success")
     }catch(err){
         next(err)
     }
